@@ -26,13 +26,13 @@ class DetectionConsumer(AsyncWebsocketConsumer):
             if text_data_json['action'] == 'connection':
                 self.entities['producers'] = self
                 print(self.entities)
-            if text_data_json['action'] == 'stream' and text_data_json.get('frame'):                
+            if text_data_json['action'] == 'stream' and text_data_json.get('frame'):            
                 if len(self.entities['consumers']) > 0:
                     frame_to_be_sent = await self.act_upon_the_stream(text_data_json['frame'])
-                    await self.channel_layer.group_send(
-                        "consumers", {"type": "send.frame", "frame_obj": {'action':'stream','frame':frame_to_be_sent}}
-                    )
-
+                    if frame_to_be_sent:
+                        await self.channel_layer.group_send(
+                            "consumers", {"type": "send.frame", "frame_obj": {'action':'stream','frame':frame_to_be_sent}}
+                        )
 
         if text_data_json['client'] == 'consumer' and text_data_json.get('action'):
             if text_data_json['action'] == 'connection':
